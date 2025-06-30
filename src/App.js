@@ -1,4 +1,4 @@
-// App.js - Main Application File
+// App.js - Main Application File with Database Explorer
 import React, { useState } from 'react';
 import Header from './contents/components/Header';
 import Toolbar from './contents/components/Toolbar';
@@ -9,6 +9,7 @@ import StatusBar from './contents/components/StatusBar';
 import AIAssistant from './contents/components/AIAssistant';
 import ConnectionModal from './contents/components/ConnectionModal';
 import AIConfigModal from './contents/components/AIConfigModal';
+import DatabaseExplorer from './contents/components/DatabaseExplorer';
 import { useDatabase } from './contents/hooks/useDatabase';
 import { useQueryHistory } from './contents/hooks/useQueryHistory';
 import { useAIConfig } from './contents/hooks/useAIConfig';
@@ -28,6 +29,7 @@ const App = () => {
   const [aiConfigModal, setAiConfigModal] = useState(false);
   const [status, setStatus] = useState('Ready - No database connected');
   const [error, setError] = useState(null);
+  const [isRefreshingSchema, setIsRefreshingSchema] = useState(false);
 
   // Connection Form State
   const [connectionForm, setConnectionForm] = useState({
@@ -48,7 +50,8 @@ const App = () => {
     connectionStatus,
     testConnection,
     executeQuery,
-    saveConnection
+    saveConnection,
+    refreshSchemas
   } = useDatabase(API_BASE);
 
   const { queryHistory, addToHistory } = useQueryHistory();
@@ -176,6 +179,31 @@ const App = () => {
     setStatus(`AI configured with ${newConfig.provider} (${newConfig.model})`);
   };
 
+  // Database Explorer Event Handlers
+  const handleTableSelect = (table) => {
+    // Generate a SELECT query for the selected table
+    const selectQuery = `SELECT * FROM ${table.tableName} LIMIT 100;`;
+    setQuery(selectQuery);
+    setStatus(`Selected table: ${table.tableName}`);
+  };
+
+  const handleRefreshSchema = async () => {
+    if (!connection) return;
+
+    setIsRefreshingSchema(true);
+    setStatus('Refreshing database schema...');
+
+    try {
+      await refreshSchemas();
+      setStatus('Database schema refreshed');
+    } catch (error) {
+      setError(`Failed to refresh schema: ${error.message}`);
+      setStatus('Schema refresh failed');
+    }
+
+    setIsRefreshingSchema(false);
+  };
+
   return (
       <div style={{
         minHeight: '100vh',
@@ -183,7 +211,7 @@ const App = () => {
         padding: '20px',
         fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
       }}>
-        <div style={{ maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ maxWidth: '1600px', margin: '0 auto' }}>
           <Header
               aiEnabled={aiEnabled}
               setAiEnabled={setAiEnabled}
@@ -191,18 +219,33 @@ const App = () => {
               isAIConfigured={isAIConfigured}
           />
 
-          <div style={{ display: 'flex', gap: '24px', minHeight: 'calc(100vh - 200px)' }}>
+          <div style={{
+            display: 'flex',
+            gap: '20px',
+            minHeight: 'calc(100vh - 200px)',
+            background: 'rgba(255, 255, 255, 0.95)',
+            backdropFilter: 'blur(10px)',
+            borderRadius: '15px',
+            boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+            overflow: 'hidden'
+          }}>
+            {/* Database Explorer Sidebar */}
+            <DatabaseExplorer
+                connection={connection}
+                schemas={schemas}
+                onTableSelect={handleTableSelect}
+                onRefresh={handleRefreshSchema}
+                isLoading={isRefreshingSchema}
+            />
+
             {/* Main Editor Panel */}
             <div style={{
               flex: 1,
-              background: 'rgba(255, 255, 255, 0.95)',
-              backdropFilter: 'blur(10px)',
-              borderRadius: '15px',
-              boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
               padding: '24px',
               display: 'flex',
               flexDirection: 'column',
-              gap: '20px'
+              gap: '20px',
+              minWidth: 0 // Prevents flex item from overflowing
             }}>
               <Toolbar
                   onConnect={() => setConnectionModal(true)}
@@ -230,17 +273,19 @@ const App = () => {
 
             {/* AI Assistant Panel */}
             {aiEnabled && (
-                <AIAssistant
-                    aiInput={aiInput}
-                    setAiInput={setAiInput}
-                    onGenerateSQL={handleGenerateSQL}
-                    schemas={schemas}
-                    queryHistory={queryHistory}
-                    onSelectQuery={setQuery}
-                    isAIConfigured={isAIConfigured}
-                    onAIConfig={() => setAiConfigModal(true)}
-                    aiConfig={aiConfig}
-                />
+                <div style={{ width: '400px', borderLeft: '1px solid #dee2e6' }}>
+                  <AIAssistant
+                      aiInput={aiInput}
+                      setAiInput={setAiInput}
+                      onGenerateSQL={handleGenerateSQL}
+                      schemas={schemas}
+                      queryHistory={queryHistory}
+                      onSelectQuery={setQuery}
+                      isAIConfigured={isAIConfigured}
+                      onAIConfig={() => setAiConfigModal(true)}
+                      aiConfig={aiConfig}
+                  />
+                </div>
             )}
           </div>
 
