@@ -17,6 +17,7 @@ import { formatSQL } from './contents/utils/sqlFormatter';
 import { exportToCSV } from './contents/utils/exportToCSV';
 import { exportToJSON } from './contents/utils/exportToJSON';
 import { generateSQLWithAI } from './contents/utils/generateSQLWithAI';
+import IntelliSenseSQLEditor from './contents/components/IntelliSenseSQLEditor';
 
 const App = () => {
   // UI State
@@ -258,7 +259,12 @@ const App = () => {
                   isAIConfigured={isAIConfigured}
               />
 
-              <SQLEditor query={query} setQuery={setQuery} />
+              <IntelliSenseSQLEditor
+                  query={query}
+                  setQuery={setQuery}
+                  schemas={schemas}
+                  connection={connection}
+              />
 
               <ErrorDisplay error={error} />
 
