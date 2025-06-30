@@ -18,6 +18,8 @@ import { exportToCSV } from './contents/utils/exportToCSV';
 import { exportToJSON } from './contents/utils/exportToJSON';
 import { generateSQLWithAI } from './contents/utils/generateSQLWithAI';
 import IntelliSenseSQLEditor from './contents/components/IntelliSenseSQLEditor';
+import SyntaxHighlightedSQLEditor from './contents/components/SyntaxHighlightedSQLEditor';
+
 
 const App = () => {
   // UI State
