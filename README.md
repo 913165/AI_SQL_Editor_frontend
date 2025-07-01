@@ -1,5 +1,8 @@
 # 🗄️ Real SQL Editor with AI Assistant
 
+![WhatsApp Image 2025-07-01 at 16 48 54_c55cfecf](https://github.com/user-attachments/assets/6710c3ff-f956-463d-b0f7-9ab08d944a73)
+
+
 A **production-ready, modular SQL editor** built with React that connects to real databases and features AI-powered SQL generation. No simulations, no mock data - everything is real and functional.
 
 ![SQL Editor Screenshot](https://img.shields.io/badge/React-18+-blue) ![AI Powered](https://img.shields.io/badge/AI-OpenAI%20GPT--4-green) ![Database](https://img.shields.io/badge/Database-MySQL%20%7C%20PostgreSQL%20%7C%20Oracle-orange) ![License](https://img.shields.io/badge/License-MIT-yellow)
